@@ -1,4 +1,4 @@
-# Volt
+# Vexi
 
 <div align="center">
 
@@ -12,12 +12,12 @@
 
 ## Overview
 
-Volt is a Linux distribution inspired by Omarchy, featuring a custom-built desktop environment designed for performance, aesthetics, and user experience. Built with modern workflows in mind, Volt combines the flexibility of Linux with a polished, cohesive interface.
+Vexi is a Linux distribution inspired by Omarchy, featuring a custom-built desktop environment designed for performance, aesthetics, and user experience. Built with modern workflows in mind, Vexi combines the flexibility of Linux with a polished, cohesive interface.
 
 ## Features
 
 ### Custom Desktop Environment
-- **Tailored Experience**: Purpose-built desktop environment optimized for Volt
+- **Tailored Experience**: Purpose-built desktop environment optimized for Vexi
 - **Modern Design**: Clean, intuitive interface with attention to detail
 - **Performance Focused**: Lightweight and responsive architecture
 - **Highly Customizable**: Extensive theming and configuration options
@@ -40,8 +40,9 @@ Volt is a Linux distribution inspired by Omarchy, featuring a custom-built deskt
 ### Quick Start
 1.Write this command
 ```bash
-curl -fsSL https://github.com/Milicop/VOLT-BASE-DEV/releases/download/voltinstall/install | bash
+curl -fsSL https://github.com/CyberHuman-bot/Vexi/releases/download/Vexiinstall/install | bash
 ```
+(When completed)
 2.Reboot your system
 
 ## Documentation
@@ -57,7 +58,7 @@ Visit our [documentation portal](#) for detailed guides and tutorials.
 
 ## Community
 
-Join our growing community of Volt users and contributors:
+Join our growing community of Vexi users and contributors:
 
 - **Discord**: Join our [Discord server](https://discord.gg/6naeNfwEtY) for real-time chat and support
 - **GitHub**: Report issues, contribute code, or suggest features
@@ -65,7 +66,7 @@ Join our growing community of Volt users and contributors:
 
 ## Development
 
-Volt is open source and welcomes contributions from the community. Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+Vexi is open source and welcomes contributions from the community. Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
 ### Contributing
 1. Fork the repository
@@ -77,13 +78,13 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## Acknowledgments
 
-Inspired by Omarchy and built upon the shoulders of countless open-source projects. Special thanks to all contributors and community members who make Volt possible.
+Inspired by Omarchy and built upon the shoulders of countless open-source projects. Special thanks to all contributors and community members who make Vexi possible.
 
 “An Arch-based distro with an instantly usable Hyprland setup — no manual rice required.”
 ---
 
 <div align="center">
 
-**Built with ❤️ by the Volt community**
+**Built with ❤️ by the Vexi community**
 
 </div>

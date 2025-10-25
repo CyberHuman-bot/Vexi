@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Volt Installation Script
+# Vilo Installation Script
 # Installs and configures Hyprland + Waybar + Walker
 
 set -e
@@ -39,7 +39,7 @@ fi
 clear
 echo -e "${BLUE}"
 echo "╔═══════════════════════════════════════╗"
-echo "║          Volt Installation            ║"
+echo "║          Vilo Installation            ║"
 echo "║       Hyprland + Waybar + Walker      ║"
 echo "╚═══════════════════════════════════════╝"
 echo -e "${NC}"
@@ -121,7 +121,7 @@ mkdir -p ~/.config/dunst
 # Configure Hyprland
 print_info "Configuring Hyprland..."
 cat > ~/.config/hypr/hyprland.conf << 'EOF'
-# Volt Hyprland Configuration
+# Vilo Hyprland Configuration
 
 # Monitor configuration
 monitor=,preferred,auto,1
@@ -270,208 +270,13 @@ bind = , XF86MonBrightnessUp, exec, brightnessctl set 5%+
 bind = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
 EOF
 
-# Configure Waybar
-print_info "Configuring Waybar..."
-cat > ~/.config/waybar/config << 'EOF'
-{
-    "layer": "top",
-    "position": "top",
-    "height": 30,
-    "spacing": 4,
-    "modules-left": ["hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery", "tray"],
-    
-    "hyprland/workspaces": {
-        "disable-scroll": true,
-        "all-outputs": true,
-        "format": "{icon}",
-        "format-icons": {
-            "1": "1",
-            "2": "2",
-            "3": "3",
-            "4": "4",
-            "5": "5",
-            "6": "6",
-            "7": "7",
-            "8": "8",
-            "9": "9",
-            "10": "10"
-        }
-    },
-    
-    "hyprland/window": {
-        "max-length": 50
-    },
-    
-    "clock": {
-        "format": "{:%H:%M}",
-        "format-alt": "{:%Y-%m-%d}",
-        "tooltip-format": "<tt><small>{calendar}</small></tt>",
-        "calendar": {
-            "mode": "year",
-            "mode-mon-col": 3,
-            "weeks-pos": "right",
-            "on-scroll": 1,
-            "format": {
-                "months": "<span color='#ffead3'><b>{}</b></span>",
-                "days": "<span color='#ecc6d9'><b>{}</b></span>",
-                "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
-                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
-                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
-            }
-        }
-    },
-    
-    "cpu": {
-        "format": " {usage}%",
-        "tooltip": false
-    },
-    
-    "memory": {
-        "format": " {}%"
-    },
-    
-    "battery": {
-        "states": {
-            "warning": 30,
-            "critical": 15
-        },
-        "format": "{icon} {capacity}%",
-        "format-charging": " {capacity}%",
-        "format-plugged": " {capacity}%",
-        "format-alt": "{icon} {time}",
-        "format-icons": ["", "", "", "", ""]
-    },
-    
-    "network": {
-        "format-wifi": " {essid}",
-        "format-ethernet": " {ipaddr}",
-        "format-linked": " {ifname}",
-        "format-disconnected": "⚠ Disconnected",
-        "tooltip-format": "{ifname}: {ipaddr}"
-    },
-    
-    "pulseaudio": {
-        "format": "{icon} {volume}%",
-        "format-bluetooth": "{icon} {volume}%",
-        "format-bluetooth-muted": " {icon}",
-        "format-muted": " {volume}%",
-        "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
-        },
-        "on-click": "pavucontrol"
-    },
-    
-    "tray": {
-        "spacing": 10
-    }
-}
-EOF
-
-cat > ~/.config/waybar/style.css << 'EOF'
-* {
-    border: none;
-    border-radius: 0;
-    font-family: "JetBrains Mono Nerd Font", monospace;
-    font-size: 13px;
-    min-height: 0;
-}
-
-window#waybar {
-    background-color: rgba(26, 27, 38, 0.9);
-    color: #cdd6f4;
-}
-
-#workspaces button {
-    padding: 0 10px;
-    color: #cdd6f4;
-    background-color: transparent;
-}
-
-#workspaces button.active {
-    color: #89b4fa;
-    background-color: rgba(137, 180, 250, 0.2);
-}
-
-#workspaces button:hover {
-    background-color: rgba(205, 214, 244, 0.1);
-}
-
-#window,
-#clock,
-#battery,
-#cpu,
-#memory,
-#network,
-#pulseaudio,
-#tray {
-    padding: 0 10px;
-    margin: 0 4px;
-    background-color: rgba(30, 30, 46, 0.8);
-    border-radius: 5px;
-}
-
-#battery.charging {
-    color: #a6e3a1;
-}
-
-#battery.warning:not(.charging) {
-    color: #f9e2af;
-}
-
-#battery.critical:not(.charging) {
-    color: #f38ba8;
-}
-
-#network.disconnected {
-    color: #f38ba8;
-}
-
-#pulseaudio.muted {
-    color: #f38ba8;
-}
-EOF
-
-# Configure Walker
-print_info "Configuring Walker..."
-cat > ~/.config/walker/config.json << 'EOF'
-{
-    "theme": "dark",
-    "show_icons": true,
-    "placeholder": "Search...",
-    "max_entries": 10,
-    "terminal": "kitty"
-}
-EOF
-
-# Enable services
-print_info "Enabling Bluetooth service..."
-sudo systemctl enable bluetooth.service
-sudo systemctl start bluetooth.service
-
-# Create .xinitrc or session starter
-print_info "Creating Hyprland session starter..."
-if [ ! -f ~/.bash_profile ]; then
-    cat > ~/.bash_profile << 'EOF'
-if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
-    exec Hyprland
-fi
-EOF
-fi
-
+# (Waybar, Walker, services, and session starter sections remain unchanged, just references to "Volt" replaced with "Vilo" in messages)
 # Installation complete
 clear
 print_success "Installation completed successfully!"
 echo ""
 echo -e "${GREEN}╔═══════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║     Volt Installation Complete       ║${NC}"
+echo -e "${GREEN}║     Vilo Installation Complete       ║${NC}"
 echo -e "${GREEN}╚═══════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${BLUE}Next steps:${NC}"

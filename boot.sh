@@ -18,7 +18,7 @@ ansi_art='
  ╚████╔╝ ██║███████╗╚██████╔╝
   ╚═══╝  ╚═╝╚══════╝ ╚═════╝ 
                                  
-⚡ Powered by Ractor Package Manager
+Powered by Ractor Package Manager
 React Apps at Lightning Speed
 '
 
@@ -35,13 +35,23 @@ success_msg() {
 
 # Info message
 info_msg() {
-    echo -e "${BLUE}⚡ $1${NC}"
+    echo -e "${BLUE}→ $1${NC}"
 }
 
 # Warning message
 warn_msg() {
     echo -e "${YELLOW}⚠ $1${NC}"
 }
+
+# Check if running on Arch Linux
+if [[ ! -f /etc/arch-release ]]; then
+    error_exit "This script only works on Arch Linux or Arch-based distributions"
+fi
+
+# Check if pacman is available
+if ! command -v pacman &> /dev/null; then
+    error_exit "pacman package manager not found. This script requires Arch Linux"
+fi
 
 # Check if running as root (we shouldn't be)
 if [[ $EUID -eq 0 ]]; then

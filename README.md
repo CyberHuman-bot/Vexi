@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Discord Card](https://discord.com/api/guilds/1428713325692190844/widget.png?style=banner2)](https://discord.gg/6naeNfwEtY)
+[![Discord Card](https://discord.com/api/guilds/1428713325692190844/widget.png?style=banner1)](https://discord.gg/6naeNfwEtY)
 
 **A modern Linux distribution with a custom desktop environment**
 

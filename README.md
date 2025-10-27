@@ -1,10 +1,8 @@
-# Vilo
+# Vilo Linux Distribution
 
 <div align="center">
 
 [![Discord Card](https://discord.com/api/guilds/1428713325692190844/widget.png?style=banner1)](https://discord.gg/6naeNfwEtY)
-
-**A modern Linux distribution with a custom desktop environment**
 
 [Features](#features) • [Installation](#installation) • [Documentation](#documentation) • [Community](#community)
 
@@ -12,63 +10,58 @@
 
 ## Overview
 
-Vilo is a Linux distribution inspired by Omarchy, featuring a custom-built desktop environment designed for performance, aesthetics, and user experience. Built with modern workflows in mind, Vilo combines the flexibility of Linux with a polished, cohesive interface.
+Vilo is a modern Linux distribution inspired by Omarchy. It emphasizes simplicity, flexibility, and efficiency while providing a robust base for developers and enthusiasts.
 
 ## Features
 
-### Custom Desktop Environment
-- **Tailored Experience**: Purpose-built desktop environment optimized for Vilo
-- **Modern Design**: Clean, intuitive interface with attention to detail
-- **Performance Focused**: Lightweight and responsive architecture
-- **Highly Customizable**: Extensive theming and configuration options
-
-### Core Capabilities
-- **Ractor Package Manager**: Built on the powerful Pacman package manager for fast and reliable software management
-- **Rolling Release Model**: Always up-to-date with the latest software
-- **Minimalist Base**: Install only what you need
-- **Developer Friendly**: Comprehensive tooling and development packages
-- **Hardware Support**: Broad compatibility with modern and legacy hardware
+* **Ractor Package Manager**: Fast, reliable package management.
+* **Rolling Release**: Always up-to-date with the latest software.
+* **Minimalist Base**: Install only what you need.
+* **Developer Friendly**: Preloaded with essential development tools.
+* **Hardware Support**: Broad compatibility with both modern and legacy hardware.
 
 ## Installation
 
 ### System Requirements
-- **Processor**: 64-bit CPU (x86_64)
-- **Memory**: 2GB RAM minimum (4GB recommended)
-- **Storage**: 20GB available space
-- **Graphics**: Any GPU with OpenGL 3.0+ support
+
+* **CPU**: 64-bit (x86_64)
+* **RAM**: 2GB minimum (4GB recommended)
+* **Storage**: 20GB available
+* **Graphics**: GPU with OpenGL 3.0+
 
 ### Quick Start
-1.Write this command
+
+Run the following command:
+
 ```bash
-curl -fsSL https://github.com/CyberHuman-bot/Vilo/releases/download/Viloinstall/install | bash
+curl -fsSL https://github.com/CyberHuman-bot/Vilo/releases/download/install/install | bash
 ```
-(When completed)
-2.Reboot your system
+
+Then reboot your system.
 
 ## Documentation
 
-Comprehensive documentation is available covering:
-- Installation guides
-- Desktop environment usage
-- Package management
-- System configuration
-- Troubleshooting
+Vilo provides comprehensive guides for:
 
-Visit our [documentation portal](#) for detailed guides and tutorials.
+* Installation
+* Package management
+* System configuration
+* Troubleshooting
+
+Visit our [documentation portal](#) for tutorials and detailed instructions.
 
 ## Community
 
-Join our growing community of Vilo users and contributors:
+Connect with the Vilo community:
 
-- **Discord**: Join our [Discord server](https://discord.gg/6naeNfwEtY) for real-time chat and support
-- **GitHub**: Report issues, contribute code, or suggest features
-- **Forum**: Long-form discussions and community support
+* **Discord**: [Join the server](https://discord.gg/6naeNfwEtY)
+* **GitHub**: Report issues, suggest features, or contribute code
+* **Forum**: Participate in discussions and support
 
-## Development
+## Contributing
 
-Vilo is open source and welcomes contributions from the community. Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+Vilo is open-source and welcomes contributions.
 
-### Contributing
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -78,13 +71,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## Acknowledgments
 
-Inspired by Omarchy and built upon the shoulders of countless open-source projects. Special thanks to all contributors and community members who make Vilo possible.
-
-“An Arch-based distro with an instantly usable Hyprland setup — no manual rice required.”
----
+Inspired by Omarchy and other open-source projects. Special thanks to contributors and community members.
 
 <div align="center">
-
 **Built with ❤️ by the Vilo community**
-
 </div>

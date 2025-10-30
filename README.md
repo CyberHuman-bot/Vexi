@@ -73,6 +73,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 Inspired by Omarchy and other open-source projects. Special thanks to contributors and community members.
 
-<div align="center">
-**Built with ❤️ by the Vilo community**
-</div>
+# Built with ❤️ by the Vilo community
+

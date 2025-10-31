@@ -1,4 +1,4 @@
-# Vilo Linux Distribution
+# Vilo - Arch Linux Configuration Extension
 
 <div align="center">
 
@@ -10,43 +10,84 @@
 
 ## Overview
 
-Vilo is a modern Linux distribution inspired by Omarchy. It emphasizes simplicity, flexibility, and efficiency while providing a robust base for developers and enthusiasts.
+Vilo is an automated setup tool for Arch Linux that configures Hyprland and a complete desktop environment. Inspired by Omarchy, it provides a streamlined way to get a working system with minimal manual configuration.
+
+Run one command on a fresh Arch Linux installation, and Vilo handles the rest—installing packages, configuring Hyprland, setting up your desktop components, and applying a cohesive theme.
+
+## What Vilo Does
+
+* **Automated Hyprland Setup**: Configures Hyprland compositor with optimized settings
+* **Desktop Environment**: Installs and configures essential desktop components (status bar, launcher, terminal, etc.)
+* **Development Tools**: Pre-configures common development environments
+* **Theming & Aesthetics**: Applies a cohesive visual theme across all components
+* **System Optimization**: Implements performance tweaks and best practices
 
 ## Features
 
-* **Ractor Package Manager**: Fast, reliable package management.
-* **Rolling Release**: Always up-to-date with the latest software.
-* **Minimalist Base**: Install only what you need.
-* **Developer Friendly**: Preloaded with essential development tools.
-* **Hardware Support**: Broad compatibility with both modern and legacy hardware.
+* **One-Command Setup**: Transform Arch Linux into a complete desktop environment instantly
+* **Ractor Package Manager**: Fast, reliable package management built on top of pacman
+* **Rolling Release**: Inherits Arch Linux's rolling release model
+* **Minimalist Philosophy**: Clean, bloat-free configuration you can customize
+* **Developer Friendly**: Preloaded with essential development tools and configurations
+* **Hyprland-Centric**: Optimized specifically for the Hyprland wayland compositor
+
+## Prerequisites
+
+Vilo requires a **base Arch Linux installation**. You must have:
+
+* A working Arch Linux system (installed via archinstall or manual installation)
+* An internet connection
+* Root or sudo access
 
 ## Installation
 
 ### System Requirements
 
+* **Base System**: Arch Linux (installed)
 * **CPU**: 64-bit (x86_64)
-* **RAM**: 2GB minimum (4GB recommended)
+* **RAM**: 2GB minimum (4GB recommended for Hyprland)
 * **Storage**: 20GB available
-* **Graphics**: GPU with OpenGL 3.0+
+* **Graphics**: GPU with Vulkan support (recommended for Hyprland)
 
 ### Quick Start
 
-Run the following command:
+On your existing Arch Linux installation, run:
 
 ```bash
 curl -fsSL https://github.com/CyberHuman-bot/Vilo/releases/download/install/install | bash
 ```
 
-Then reboot your system.
+The script will:
+1. Install necessary packages
+2. Configure Hyprland with optimized settings
+3. Set up your desktop environment
+4. Apply theming and configurations
+
+Then reboot your system to launch into your configured Hyprland environment.
+
+## What Gets Configured
+
+Vilo automatically configures:
+
+* **Hyprland compositor** with custom keybindings and animations
+* **Status bar** (Waybar or similar)
+* **Application launcher** (Rofi/Wofi)
+* **Terminal emulator** with shell configuration
+* **Notification daemon**
+* **File manager**
+* **Audio system** (PipeWire/WirePlumber)
+* **Network management**
+* **Display manager** (optional)
 
 ## Documentation
 
 Vilo provides comprehensive guides for:
 
-* Installation
-* Package management
-* System configuration
-* Troubleshooting
+* Pre-installation (setting up Arch Linux)
+* Post-installation configuration
+* Customizing Hyprland settings
+* Package management with Ractor
+* Troubleshooting common issues
 
 Visit our [documentation portal](#) for tutorials and detailed instructions.
 
@@ -60,7 +101,7 @@ Connect with the Vilo community:
 
 ## Contributing
 
-Vilo is open-source and welcomes contributions.
+Vilo is open-source and welcomes contributions to improve the configuration and setup process.
 
 1. Fork the repository
 2. Create a feature branch
@@ -69,9 +110,26 @@ Vilo is open-source and welcomes contributions.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
+## Frequently Asked Questions
+
+**Q: Is Vilo a Linux distribution?**  
+A: No. Vilo is a configuration tool that extends Arch Linux. You need an existing Arch installation.
+
+**Q: Can I use Vilo on other distributions?**  
+A: No. Vilo is specifically designed for Arch Linux and relies on its package management system.
+
+**Q: Will this overwrite my existing configurations?**  
+A: The installer will back up existing configurations before making changes. Review the installation script before running.
+
+**Q: Can I customize the setup?**  
+A: Absolutely! All configurations are stored in standard locations (~/.config, /etc) and can be modified after installation.
+
 ## Acknowledgments
 
-Inspired by Omarchy and other open-source projects. Special thanks to contributors and community members.
+Inspired by Omarchy and the Arch Linux philosophy. Special thanks to the Hyprland project and all contributors to the Vilo community.
 
-# Built with ❤️ by the Vilo community
+---
 
+**Built with ❤️ by the Vilo community**
+
+*Vilo: Making Arch + Hyprland setup effortless*

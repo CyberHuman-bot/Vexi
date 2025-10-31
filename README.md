@@ -99,6 +99,12 @@ Connect with the Vilo community:
 * **GitHub**: Report issues, suggest features, or contribute code
 * **Forum**: Participate in discussions and support
 
+## License
+
+This project is licensed under the **MIT License**. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of this software, as long as the original copyright notice is included.
+
+See the [LICENSE](LICENSE) file for full details.
+
 ## Contributing
 
 Vilo is open-source and welcomes contributions to improve the configuration and setup process.

@@ -37,7 +37,7 @@ Vilo requires a **base Arch Linux installation**. You must have:
 
 * A working Arch Linux system (installed via archinstall or manual installation)
 * An internet connection
-* Root or sudo access
+* Root or sudo access on a normal user
 
 ## Installation
 

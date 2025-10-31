@@ -205,12 +205,13 @@ print_success "Configuration directories ready"
 print_step "Backing Up Existing Configurations"
 for dir in "${CONFIG_DIRS[@]}"; do
     config_name=$(basename "$dir")
-    if [ -f "$dir/${config_name}.conf" ] || [ -f "$dir/config" ]; then
+    if [ -d "$dir" ] && [ "$(ls -A "$dir" 2>/dev/null)" ]; then
         backup_dir="${dir}.backup.$(date +%Y%m%d_%H%M%S)"
         cp -r "$dir" "$backup_dir"
         print_info "Backed up $config_name to $backup_dir"
     fi
 done
+
 
 # Configure Hyprland
 print_step "Configuring Hyprland"

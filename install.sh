@@ -56,10 +56,74 @@ if [ "$EUID" -eq 0 ]; then
     error_exit "Please do not run this script as root"
 fi
 
-# Check if running on Arch-based system
-if ! command -v pacman &> /dev/null; then
-    error_exit "This script requires an Arch-based Linux distribution"
-fi
+# Detect distribution
+detect_distro() {
+    if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        DISTRO=$ID
+        DISTRO_LIKE=${ID_LIKE:-}
+    elif [[ -f /etc/arch-release ]]; then
+        DISTRO="arch"
+    elif [[ -f /etc/debian_version ]]; then
+        DISTRO="debian"
+    elif [[ -f /etc/fedora-release ]]; then
+        DISTRO="fedora"
+    else
+        error_exit "Unable to detect distribution"
+    fi
+}
+
+# Initialize package manager based on distro
+init_package_manager() {
+    case "$DISTRO" in
+        arch|manjaro|endeavouros)
+            PKG_MANAGER="pacman"
+            PKG_INSTALL="sudo pacman -S --needed --noconfirm"
+            PKG_UPDATE="sudo pacman -Syu --noconfirm"
+            AUR_HELPER="yay"
+            ;;
+        debian|ubuntu|linuxmint|pop)
+            PKG_MANAGER="apt"
+            PKG_INSTALL="sudo apt-get install -y"
+            PKG_UPDATE="sudo apt-get update && sudo apt-get upgrade -y"
+            AUR_HELPER=""
+            # Debian warning flag
+            if [[ "$DISTRO" == "debian" ]]; then
+                DEBIAN_HYPRLAND_WARNING=true
+            fi
+            ;;
+        fedora|rhel|centos|rocky|almalinux)
+            PKG_MANAGER="dnf"
+            PKG_INSTALL="sudo dnf install -y"
+            PKG_UPDATE="sudo dnf upgrade -y"
+            AUR_HELPER=""
+            ;;
+        *)
+            # Check ID_LIKE for derivative distros
+            if [[ "$DISTRO_LIKE" == *"arch"* ]]; then
+                PKG_MANAGER="pacman"
+                PKG_INSTALL="sudo pacman -S --needed --noconfirm"
+                PKG_UPDATE="sudo pacman -Syu --noconfirm"
+                AUR_HELPER="yay"
+            elif [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
+                PKG_MANAGER="apt"
+                PKG_INSTALL="sudo apt-get install -y"
+                PKG_UPDATE="sudo apt-get update && sudo apt-get upgrade -y"
+                AUR_HELPER=""
+                if [[ "$DISTRO_LIKE" == *"debian"* ]]; then
+                    DEBIAN_HYPRLAND_WARNING=true
+                fi
+            elif [[ "$DISTRO_LIKE" == *"fedora"* ]] || [[ "$DISTRO_LIKE" == *"rhel"* ]]; then
+                PKG_MANAGER="dnf"
+                PKG_INSTALL="sudo dnf install -y"
+                PKG_UPDATE="sudo dnf upgrade -y"
+                AUR_HELPER=""
+            else
+                error_exit "Unsupported distribution: $DISTRO. Supported: Arch, Debian, Ubuntu, Fedora, and derivatives"
+            fi
+            ;;
+    esac
+}
 
 # Welcome banner
 clear
@@ -71,6 +135,36 @@ cat << 'EOF'
 ╚═══════════════════════════════════════╝
 EOF
 echo -e "${NC}"
+
+# Detect distribution
+print_info "Detecting distribution..."
+detect_distro
+init_package_manager
+print_success "Detected: $DISTRO (using $PKG_MANAGER)"
+echo ""
+
+# Debian Hyprland warning
+if [[ "${DEBIAN_HYPRLAND_WARNING:-false}" == "true" ]]; then
+    echo -e "${YELLOW}╔═══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}║               ⚠  IMPORTANT NOTICE  ⚠                     ║${NC}"
+    echo -e "${YELLOW}╚═══════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${YELLOW}"
+    echo "  Hyprland does not have 100% official support on Debian."
+    echo "  You may experience:"
+    echo "    • Installation difficulties"
+    echo "    • Missing packages in official repositories"
+    echo "    • Potential compatibility issues"
+    echo ""
+    echo "  Recommended: Use Arch, Fedora, or Ubuntu for better support."
+    echo -e "${NC}"
+    read -p "Do you want to continue anyway? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_warning "Installation cancelled by user"
+        exit 0
+    fi
+    echo ""
+fi
 
 # Show what will be installed
 echo -e "${CYAN}This script will install:${NC}"
@@ -91,96 +185,263 @@ fi
 # Update system
 print_step "System Update"
 print_info "Updating system packages..."
-sudo pacman -Syu --noconfirm || error_exit "Failed to update system"
+eval "$PKG_UPDATE" || error_exit "Failed to update system"
 print_success "System updated"
 
 # Install base dependencies
 print_step "Installing Base Dependencies"
-BASE_DEPS=(
-    base-devel
-    git
-    wget
-    curl
-)
+
+if [[ "$PKG_MANAGER" == "pacman" ]]; then
+    BASE_DEPS=(
+        base-devel
+        git
+        wget
+        curl
+    )
+elif [[ "$PKG_MANAGER" == "apt" ]]; then
+    BASE_DEPS=(
+        build-essential
+        git
+        wget
+        curl
+        meson
+        cmake
+        ninja-build
+        pkg-config
+    )
+elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+    BASE_DEPS=(
+        gcc
+        gcc-c++
+        git
+        wget
+        curl
+        meson
+        cmake
+        ninja-build
+        pkgconfig
+    )
+fi
 
 for dep in "${BASE_DEPS[@]}"; do
     print_info "Installing $dep..."
-    sudo pacman -S --needed --noconfirm "$dep" || error_exit "Failed to install $dep"
+    eval "$PKG_INSTALL $dep" || print_warning "Failed to install $dep (continuing...)"
 done
 print_success "Base dependencies installed"
 
 # Install Hyprland and related packages
 print_step "Installing Hyprland Environment"
-HYPRLAND_PKGS=(
-    hyprland
-    xdg-desktop-portal-hyprland
-    qt5-wayland
-    qt6-wayland
-    polkit-kde-agent
-    kitty
-    dunst
-    rofi-wayland
-    swww
-    grim
-    slurp
-    wl-clipboard
-    cliphist
-    brightnessctl
-    playerctl
-    pavucontrol
-    network-manager-applet
-    bluez
-    bluez-utils
-    blueman
-    thunar
-    pipewire
-    pipewire-pulse
-    wireplumber
-)
+
+if [[ "$PKG_MANAGER" == "pacman" ]]; then
+    HYPRLAND_PKGS=(
+        hyprland
+        xdg-desktop-portal-hyprland
+        qt5-wayland
+        qt6-wayland
+        polkit-kde-agent
+        kitty
+        dunst
+        rofi-wayland
+        swww
+        grim
+        slurp
+        wl-clipboard
+        cliphist
+        brightnessctl
+        playerctl
+        pavucontrol
+        network-manager-applet
+        bluez
+        bluez-utils
+        blueman
+        thunar
+        pipewire
+        pipewire-pulse
+        wireplumber
+    )
+elif [[ "$PKG_MANAGER" == "apt" ]]; then
+    # Enable backports for Debian if needed
+    if [[ "$DISTRO" == "debian" ]]; then
+        print_info "Enabling backports repository..."
+        echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | sudo tee /etc/apt/sources.list.d/backports.list || true
+        sudo apt-get update || true
+    fi
+    
+    HYPRLAND_PKGS=(
+        kitty
+        dunst
+        rofi
+        grim
+        slurp
+        wl-clipboard
+        brightnessctl
+        playerctl
+        pavucontrol
+        network-manager-gnome
+        bluez
+        blueman
+        thunar
+        pipewire
+        pipewire-pulse
+        wireplumber
+        libwayland-dev
+        wayland-protocols
+        libxkbcommon-dev
+        libegl-dev
+        libgles-dev
+        libdrm-dev
+        libgbm-dev
+        libinput-dev
+        libxcb-composite0-dev
+        libxcb-xfixes0-dev
+        libxcb-xinput-dev
+        libxcb-image0-dev
+        libxcb-render-util0-dev
+        libxcb-ewmh-dev
+        libxcb-icccm4-dev
+        libpango1.0-dev
+        libcairo2-dev
+    )
+elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+    HYPRLAND_PKGS=(
+        hyprland
+        xdg-desktop-portal-hyprland
+        qt5-qtwayland
+        qt6-qtwayland
+        polkit-kde
+        kitty
+        dunst
+        rofi-wayland
+        grim
+        slurp
+        wl-clipboard
+        brightnessctl
+        playerctl
+        pavucontrol
+        network-manager-applet
+        bluez
+        blueman
+        thunar
+        pipewire
+        pipewire-pulseaudio
+        wireplumber
+    )
+fi
 
 print_info "Installing Hyprland packages (${#HYPRLAND_PKGS[@]} packages)..."
-sudo pacman -S --needed --noconfirm "${HYPRLAND_PKGS[@]}" || error_exit "Failed to install Hyprland packages"
+for pkg in "${HYPRLAND_PKGS[@]}"; do
+    eval "$PKG_INSTALL $pkg" || print_warning "Failed to install $pkg (continuing...)"
+done
 print_success "Hyprland environment installed"
+
+# Special handling for Hyprland on Debian/Ubuntu
+if [[ "$PKG_MANAGER" == "apt" ]] && ! command -v Hyprland &> /dev/null; then
+    print_warning "Hyprland not found in repositories. Attempting to build from source..."
+    print_info "This may take several minutes..."
+    
+    TEMP_DIR=$(mktemp -d)
+    cd "$TEMP_DIR"
+    
+    if git clone --recursive https://github.com/hyprwm/Hyprland; then
+        cd Hyprland
+        make all && sudo make install || print_warning "Hyprland build failed. You may need to install it manually."
+        cd "$HOME"
+    else
+        print_warning "Failed to clone Hyprland. You'll need to install it manually."
+    fi
+    
+    rm -rf "$TEMP_DIR"
+fi
 
 # Install Waybar
 print_step "Installing Waybar"
-WAYBAR_PKGS=(
-    waybar
-    otf-font-awesome
-    ttf-jetbrains-mono-nerd
-    ttf-firacode-nerd
-)
+
+if [[ "$PKG_MANAGER" == "pacman" ]]; then
+    WAYBAR_PKGS=(
+        waybar
+        otf-font-awesome
+        ttf-jetbrains-mono-nerd
+        ttf-firacode-nerd
+    )
+elif [[ "$PKG_MANAGER" == "apt" ]]; then
+    WAYBAR_PKGS=(
+        waybar
+        fonts-font-awesome
+        fonts-noto
+    )
+    # Try to install Nerd Fonts manually for Debian/Ubuntu
+    print_info "Installing Nerd Fonts..."
+    mkdir -p ~/.local/share/fonts
+    cd ~/.local/share/fonts
+    wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/JetBrainsMono.zip || true
+    if [[ -f JetBrainsMono.zip ]]; then
+        unzip -q -o JetBrainsMono.zip
+        rm JetBrainsMono.zip
+        fc-cache -f
+    fi
+    cd "$HOME"
+elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+    WAYBAR_PKGS=(
+        waybar
+        fontawesome-fonts
+        jetbrains-mono-fonts
+    )
+fi
 
 print_info "Installing Waybar and fonts..."
-sudo pacman -S --needed --noconfirm "${WAYBAR_PKGS[@]}" || error_exit "Failed to install Waybar"
+for pkg in "${WAYBAR_PKGS[@]}"; do
+    eval "$PKG_INSTALL $pkg" || print_warning "Failed to install $pkg (continuing...)"
+done
 print_success "Waybar installed"
 
-# Install yay if not present
-print_step "Setting Up AUR Helper"
-if ! command -v yay &> /dev/null; then
-    print_info "Installing yay AUR helper..."
-    TEMP_DIR=$(mktemp -d)
-    cd "$TEMP_DIR"
-    git clone https://aur.archlinux.org/yay.git || error_exit "Failed to clone yay repository"
-    cd yay
-    makepkg -si --noconfirm || error_exit "Failed to install yay"
-    cd "$HOME"
-    rm -rf "$TEMP_DIR"
-    print_success "yay installed"
-else
-    print_success "yay already installed"
+# Install AUR helper (Arch only)
+if [[ "$PKG_MANAGER" == "pacman" ]]; then
+    print_step "Setting Up AUR Helper"
+    if ! command -v yay &> /dev/null; then
+        print_info "Installing yay AUR helper..."
+        TEMP_DIR=$(mktemp -d)
+        cd "$TEMP_DIR"
+        git clone https://aur.archlinux.org/yay.git || error_exit "Failed to clone yay repository"
+        cd yay
+        makepkg -si --noconfirm || error_exit "Failed to install yay"
+        cd "$HOME"
+        rm -rf "$TEMP_DIR"
+        print_success "yay installed"
+    else
+        print_success "yay already installed"
+    fi
 fi
 
 # Install Walker
 print_step "Installing Walker"
-print_info "Installing Walker from AUR..."
-yay -S --needed --noconfirm walker-git || yay -S --needed --noconfirm walker || error_exit "Failed to install Walker"
-print_success "Walker installed"
+
+if [[ "$PKG_MANAGER" == "pacman" ]]; then
+    print_info "Installing Walker from AUR..."
+    yay -S --needed --noconfirm walker-git || yay -S --needed --noconfirm walker || print_warning "Failed to install Walker. You may need to install it manually."
+elif [[ "$PKG_MANAGER" == "apt" ]]; then
+    print_warning "Walker not available in apt repositories."
+    print_info "You can install it from: https://github.com/abenz1267/walker"
+    print_info "Alternatively, rofi will be used as a fallback launcher."
+elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+    print_warning "Walker not available in dnf repositories."
+    print_info "You can install it from: https://github.com/abenz1267/walker"
+    print_info "Alternatively, rofi will be used as a fallback launcher."
+fi
+
+# Install swww for wallpapers (if not already installed)
+if ! command -v swww &> /dev/null; then
+    print_info "Installing swww for wallpaper management..."
+    if [[ "$PKG_MANAGER" == "pacman" ]]; then
+        eval "$PKG_INSTALL swww" || print_warning "Failed to install swww"
+    else
+        print_warning "swww not available. You may need to install it manually from: https://github.com/Horus645/swww"
+    fi
+fi
 
 # Enable services
 print_step "Enabling System Services"
 print_info "Enabling Bluetooth service..."
-sudo systemctl enable bluetooth.service || print_warning "Failed to enable Bluetooth (non-critical)"
+sudo systemctl enable bluetooth.service 2>/dev/null || print_warning "Failed to enable Bluetooth (non-critical)"
 print_success "Services configured"
 
 # Create config directories
@@ -216,7 +477,17 @@ done
 # Configure Hyprland
 print_step "Configuring Hyprland"
 print_info "Writing Hyprland configuration..."
-cat > ~/.config/hypr/hyprland.conf << 'EOF'
+
+# Determine launcher command based on what's available
+if command -v walker &> /dev/null; then
+    LAUNCHER_CMD="walker"
+elif command -v rofi &> /dev/null; then
+    LAUNCHER_CMD="rofi -show drun"
+else
+    LAUNCHER_CMD="wofi --show drun"
+fi
+
+cat > ~/.config/hypr/hyprland.conf << EOF
 # Vilo Hyprland Configuration
 
 # Monitor configuration
@@ -226,7 +497,7 @@ monitor=,preferred,auto,1
 exec-once = waybar
 exec-once = dunst
 exec-once = /usr/lib/polkit-kde-authentication-agent-1
-exec-once = swww init
+exec-once = swww init || true
 exec-once = nm-applet --indicator
 exec-once = blueman-applet
 exec-once = wl-paste --type text --watch cliphist store
@@ -324,74 +595,74 @@ windowrulev2 = float, class:^(blueman-manager)$
 windowrulev2 = float, class:^(nm-connection-editor)$
 
 # Keybindings
-$mainMod = SUPER
+\$mainMod = SUPER
 
 # Application shortcuts
-bind = $mainMod, RETURN, exec, kitty
-bind = $mainMod, Q, killactive,
-bind = $mainMod, M, exit,
-bind = $mainMod, E, exec, thunar
-bind = $mainMod, V, togglefloating,
-bind = $mainMod, R, exec, walker
-bind = $mainMod, P, pseudo,
-bind = $mainMod, J, togglesplit,
-bind = $mainMod, F, fullscreen,
-bind = $mainMod SHIFT, C, exec, cliphist list | rofi -dmenu | cliphist decode | wl-copy
+bind = \$mainMod, RETURN, exec, kitty
+bind = \$mainMod, Q, killactive,
+bind = \$mainMod, M, exit,
+bind = \$mainMod, E, exec, thunar
+bind = \$mainMod, V, togglefloating,
+bind = \$mainMod, R, exec, $LAUNCHER_CMD
+bind = \$mainMod, P, pseudo,
+bind = \$mainMod, J, togglesplit,
+bind = \$mainMod, F, fullscreen,
+bind = \$mainMod SHIFT, C, exec, cliphist list | rofi -dmenu | cliphist decode | wl-copy
 
 # Move focus with arrow keys
-bind = $mainMod, left, movefocus, l
-bind = $mainMod, right, movefocus, r
-bind = $mainMod, up, movefocus, u
-bind = $mainMod, down, movefocus, d
+bind = \$mainMod, left, movefocus, l
+bind = \$mainMod, right, movefocus, r
+bind = \$mainMod, up, movefocus, u
+bind = \$mainMod, down, movefocus, d
 
 # Move focus with vim keys
-bind = $mainMod, h, movefocus, l
-bind = $mainMod, l, movefocus, r
-bind = $mainMod, k, movefocus, u
-bind = $mainMod, j, movefocus, d
+bind = \$mainMod, h, movefocus, l
+bind = \$mainMod, l, movefocus, r
+bind = \$mainMod, k, movefocus, u
+bind = \$mainMod, j, movefocus, d
 
 # Switch workspaces
-bind = $mainMod, 1, workspace, 1
-bind = $mainMod, 2, workspace, 2
-bind = $mainMod, 3, workspace, 3
-bind = $mainMod, 4, workspace, 4
-bind = $mainMod, 5, workspace, 5
-bind = $mainMod, 6, workspace, 6
-bind = $mainMod, 7, workspace, 7
-bind = $mainMod, 8, workspace, 8
-bind = $mainMod, 9, workspace, 9
-bind = $mainMod, 0, workspace, 10
+bind = \$mainMod, 1, workspace, 1
+bind = \$mainMod, 2, workspace, 2
+bind = \$mainMod, 3, workspace, 3
+bind = \$mainMod, 4, workspace, 4
+bind = \$mainMod, 5, workspace, 5
+bind = \$mainMod, 6, workspace, 6
+bind = \$mainMod, 7, workspace, 7
+bind = \$mainMod, 8, workspace, 8
+bind = \$mainMod, 9, workspace, 9
+bind = \$mainMod, 0, workspace, 10
 
 # Move window to workspace
-bind = $mainMod SHIFT, 1, movetoworkspace, 1
-bind = $mainMod SHIFT, 2, movetoworkspace, 2
-bind = $mainMod SHIFT, 3, movetoworkspace, 3
-bind = $mainMod SHIFT, 4, movetoworkspace, 4
-bind = $mainMod SHIFT, 5, movetoworkspace, 5
-bind = $mainMod SHIFT, 6, movetoworkspace, 6
-bind = $mainMod SHIFT, 7, movetoworkspace, 7
-bind = $mainMod SHIFT, 8, movetoworkspace, 8
-bind = $mainMod SHIFT, 9, movetoworkspace, 9
-bind = $mainMod SHIFT, 0, movetoworkspace, 10
+bind = \$mainMod SHIFT, 1, movetoworkspace, 1
+bind = \$mainMod SHIFT, 2, movetoworkspace, 2
+bind = \$mainMod SHIFT, 3, movetoworkspace, 3
+bind = \$mainMod SHIFT, 4, movetoworkspace, 4
+bind = \$mainMod SHIFT, 5, movetoworkspace, 5
+bind = \$mainMod SHIFT, 6, movetoworkspace, 6
+bind = \$mainMod SHIFT, 7, movetoworkspace, 7
+bind = \$mainMod SHIFT, 8, movetoworkspace, 8
+bind = \$mainMod SHIFT, 9, movetoworkspace, 9
+bind = \$mainMod SHIFT, 0, movetoworkspace, 10
 
 # Scroll through workspaces
-bind = $mainMod, mouse_down, workspace, e+1
-bind = $mainMod, mouse_up, workspace, e-1
+bind = \$mainMod, mouse_down, workspace, e+1
+bind = \$mainMod, mouse_up, workspace, e-1
 
 # Move/resize windows
-bindm = $mainMod, mouse:272, movewindow
-bindm = $mainMod, mouse:273, resizewindow
+bindm = \$mainMod, mouse:272, movewindow
+bindm = \$mainMod, mouse:273, resizewindow
 
 # Resize windows with keyboard
-bind = $mainMod CTRL, left, resizeactive, -20 0
-bind = $mainMod CTRL, right, resizeactive, 20 0
-bind = $mainMod CTRL, up, resizeactive, 0 -20
-bind = $mainMod CTRL, down, resizeactive, 0 20
+bind = \$mainMod CTRL, left, resizeactive, -20 0
+bind = \$mainMod CTRL, right, resizeactive, 20 0
+bind = \$mainMod CTRL, up, resizeactive, 0 -20
+bind = \$mainMod CTRL, down, resizeactive, 0 20
 
 # Screenshots
-bind = , Print, exec, grim -g "$(slurp)" - | wl-copy && notify-send "Screenshot" "Copied to clipboard"
+bind = , Print, exec, grim -g "\$(slurp)" - | wl-copy && notify-send "Screenshot" "Copied to clipboard"
 bind = SHIFT, Print, exec, grim - | wl-copy && notify-send "Screenshot" "Fullscreen copied to clipboard"
-bind = $mainMod, Print, exec, grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png && notify-send "Screenshot" "Saved to ~/Pictures/Screenshots/"
+bind = \$mainMod, Print, exec, grim -g "\$(slurp)" ~/Pictures/Screenshots/\$(date +%Y%m%d_%H%M%S).png && notify-send "Screenshot" "Saved to ~/Pictures/Screenshots/"
 
 # Media keys
 bind = , XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
@@ -406,7 +677,7 @@ bind = , XF86AudioPrev, exec, playerctl previous
 bind = , XF86MonBrightnessUp, exec, brightnessctl set 5%+
 bind = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
 EOF
-print_success "Hyprland configured"
+print_success "Hyprland configured (using $LAUNCHER_CMD as launcher)"
 
 # Configure Waybar
 print_step "Configuring Waybar"
@@ -605,9 +876,23 @@ echo -e "${NC}"
 echo -e "${CYAN}Installation Summary:${NC}"
 print_success "Hyprland environment installed"
 print_success "Waybar status bar configured"
-print_success "Walker launcher installed"
+if command -v walker &> /dev/null; then
+    print_success "Walker launcher installed"
+else
+    print_warning "Walker not installed - using rofi/wofi as fallback"
+fi
 print_success "All configurations applied"
 echo ""
+
+# Distribution-specific notes
+if [[ "${DEBIAN_HYPRLAND_WARNING:-false}" == "true" ]]; then
+    echo -e "${YELLOW}Debian-specific Notes:${NC}"
+    echo "  • Debian’s Hyprland is extremely outdated."
+    echo "  • Some features may not work as expected"
+    echo "  • Consider using Arch or Fedora for optimal experience"
+    echo "  • Hyprland is not available for Bookworm as its packages are too old."
+    echo ""
+fi
 
 echo -e "${BLUE}Next Steps:${NC}"
 echo "  1. Reboot your system or log out"
@@ -617,7 +902,7 @@ echo ""
 
 echo -e "${YELLOW}Essential Keybindings:${NC}"
 echo "  SUPER + RETURN       → Open terminal"
-echo "  SUPER + R            → Launch Walker"
+echo "  SUPER + R            → Launch application launcher"
 echo "  SUPER + Q            → Close window"
 echo "  SUPER + M            → Exit Hyprland"
 echo "  SUPER + E            → File manager"

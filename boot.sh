@@ -67,19 +67,19 @@ init_package_manager() {
             PKG_MANAGER="pacman"
             PKG_INSTALL="sudo pacman -Syu --noconfirm --needed"
             PKG_UPDATE="sudo pacman -Sy"
-            PACKAGES=(sudo wget git nodejs npm jq)
+            PACKAGES=(wget git nodejs npm jq)
             ;;
         debian|ubuntu|linuxmint|pop)
             PKG_MANAGER="apt"
             PKG_INSTALL="sudo apt-get install -y"
             PKG_UPDATE="sudo apt-get update"
-            PACKAGES=(sudo wget git nodejs npm jq)
+            PACKAGES=(wget git nodejs npm jq)
             ;;
         fedora|rhel|centos|rocky|almalinux)
             PKG_MANAGER="dnf"
             PKG_INSTALL="sudo dnf install -y"
             PKG_UPDATE="sudo dnf check-update || true"
-            PACKAGES=(sudo wget git nodejs npm jq)
+            PACKAGES=(wget git nodejs npm jq)
             ;;
         *)
             # Check ID_LIKE for derivative distros
@@ -87,17 +87,17 @@ init_package_manager() {
                 PKG_MANAGER="pacman"
                 PKG_INSTALL="sudo pacman -Syu --noconfirm --needed"
                 PKG_UPDATE="sudo pacman -Sy"
-                PACKAGES=(sudo wget git nodejs npm jq)
+                PACKAGES=(wget git nodejs npm jq)
             elif [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
                 PKG_MANAGER="apt"
                 PKG_INSTALL="sudo apt-get install -y"
                 PKG_UPDATE="sudo apt-get update"
-                PACKAGES=(sudo wget git nodejs npm jq)
+                PACKAGES=(wget git nodejs npm jq)
             elif [[ "$DISTRO_LIKE" == *"fedora"* ]] || [[ "$DISTRO_LIKE" == *"rhel"* ]]; then
                 PKG_MANAGER="dnf"
                 PKG_INSTALL="sudo dnf install -y"
                 PKG_UPDATE="sudo dnf check-update || true"
-                PACKAGES=(sudo wget git nodejs npm jq)
+                PACKAGES=(wget git nodejs npm jq)
             else
                 error_exit "Unsupported distribution: $DISTRO. Supported: Arch, Debian, Ubuntu, Fedora, and derivatives"
             fi

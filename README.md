@@ -53,7 +53,7 @@ Vilo requires a **base Linux installation**. You must have:
 
 * A working Linux system (Arch, Ubuntu, Fedora, or Debian-based)
 * An internet connection
-* Root or sudo access on a normal user
+* Sudo access on a normal user
 
 ## Installation
 

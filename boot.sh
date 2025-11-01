@@ -22,7 +22,7 @@ Powered by Ractor Package Manager
 React Apps at Lightning Speed
 '
 
-# Error handler
+# Error message
 error_exit() {
     echo -e "${RED}✗ Error: $1${NC}" >&2
     exit 1

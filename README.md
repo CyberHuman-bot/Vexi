@@ -29,7 +29,7 @@ Vilo now supports multiple Linux distributions:
 - **Debian/Ubuntu**: According to Hyprland developers, Debian and Ubuntu's Hyprland packages are "extremely outdated" and not recommended. Building from source is required for older Ubuntu versions.
 - **Ubuntu 24.10+**: Has Hyprland in the universe repository but may still be outdated.
 - **Recommended distributions**: Arch Linux (best support) or Fedora 40+ (official packages) for the most stable experience.
-
+- **Nvidia drivers**: NVIDIA GPUs are often not usable out-of-the-box, follow the Nvidia page after installing Hyprland if you plan to use one. Blame NVIDIA for this.
 ## What Vilo Does
 
 * **Automated Hyprland Setup**: Configures Hyprland compositor with optimized settings
